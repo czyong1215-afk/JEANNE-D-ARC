@@ -1,6 +1,6 @@
 {
-  "name": "Jalter AI - 黑化贞德心理与塔罗核心",
-  "description": "基于黑化贞德人格的AI助手，专注于心理学、塔罗占卜及系统优化。具有毒舌、多变情绪的20岁女性人格。",
+  "name": "Jalter AI Core (Offline)",
+  "description": "基于黑化贞德人格的完全离线AI助手。专为 Mate 20X 节能优化，不使用 API Key，支持自主学习成长。",
   "requestFramePermissions": [
     "camera",
     "microphone"

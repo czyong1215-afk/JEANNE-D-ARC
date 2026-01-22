@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Jalter AI - Soul Matrix</title>
+    <title>JALTER-CORE [OFFLINE_MODE]</title>
     
     <script async src="https://ga.jspm.io/npm:es-module-shims@1.10.1/dist/es-module-shims.js"></script>
 
@@ -22,31 +22,18 @@
 
     <style>
         :root {
-            --bg: #050505;
+            --bg: #000000; /* 纯黑，为 Mate 20X 节能 */
             --accent: #991b1b;
-            --accent-glow: #ef4444;
             --text: #d1d5db;
-            --card: #0a0a0a;
-            --border: #1a1a1a;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             background: var(--bg); 
             color: var(--text); 
             margin: 0; 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            font-family: system-ui, -apple-system, sans-serif; 
             height: 100vh; 
             overflow: hidden; 
-        }
-
-        /* 灵魂矩阵背景动画 */
-        .matrix-bg {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 50% 50%, #1a0505 0%, #000 100%);
-            z-index: -1;
-            opacity: 0.5;
         }
 
         #loading-screen { 
@@ -58,56 +45,35 @@
             align-items: center; 
             justify-content: center; 
             z-index: 9999; 
-            transition: opacity 0.5s;
         }
 
-        .pulse-border {
-            border: 1px solid var(--accent);
-            padding: 20px;
-            border-radius: 4px;
-            box-shadow: 0 0 15px rgba(153, 27, 27, 0.3);
-            animation: pulse 2s infinite;
-        }
-
+        .pulse { animation: pulse 2s infinite; }
         @keyframes pulse {
-            0% { box-shadow: 0 0 5px rgba(153, 27, 27, 0.3); }
-            50% { box-shadow: 0 0 20px rgba(153, 27, 27, 0.6); }
-            100% { box-shadow: 0 0 5px rgba(153, 27, 27, 0.3); }
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
         }
 
-        .terminal-text {
-            font-family: monospace;
-            font-size: 12px;
-            color: var(--accent);
-            margin-top: 15px;
+        .scanline {
+            width: 100%;
+            height: 1px;
+            background: rgba(153, 27, 27, 0.2);
+            position: absolute;
+            top: 0;
+            animation: scan 4s linear infinite;
         }
-
-        /* 滚动条美化 */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+        @keyframes scan {
+            from { top: 0; }
+            to { top: 100%; }
+        }
     </style>
 </head>
 <body>
-    <div class="matrix-bg"></div>
+    <div class="scanline"></div>
     <div id="loading-screen">
-        <div class="pulse-border">
-            <div style="color: white; font-weight: bold; letter-spacing: 4px;">JALTER CORE</div>
-        </div>
-        <div class="terminal-text" id="status-log">正在重构魔女意志...</div>
+        <div style="color: #991b1b; font-weight: bold; font-size: 1.2rem;" class="pulse">NEURAL LINK INITIALIZING...</div>
+        <div style="font-size: 10px; color: #333; margin-top: 10px;">[STEALTH_MODE_ACTIVE]</div>
     </div>
-    
     <div id="root" style="height:100%"></div>
-
-    <script type="text/javascript">
-        window.onerror = function(msg) {
-            const s = document.getElementById('status-log');
-            if (s) { 
-                s.style.color = "#ef4444";
-                s.innerText = "CRITICAL: " + msg; 
-            }
-        };
-    </script>
     <script type="module" src="./index.tsx"></script>
 </body>
 </html>
