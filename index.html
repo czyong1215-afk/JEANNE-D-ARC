@@ -3,22 +3,37 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
     <title>Jalter AI - Core</title>
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;700&display=swap');
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sar: env(safe-area-inset-right);
+            --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+        }
         body {
             font-family: 'Crimson Pro', serif;
-            background-color: #050505;
+            background-color: #000000;
             color: #e5e5e5;
-            overflow-x: hidden;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
         }
-        .jalter-glow {
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        .oled-black {
+            background-color: #000000;
         }
-        .flame-bg {
-            background: linear-gradient(0deg, rgba(88, 28, 135, 0.1) 0%, rgba(5, 5, 5, 1) 100%);
+        /* 针对华为刘海屏/水滴屏的适配 */
+        #root {
+            padding-top: var(--sat);
+            padding-bottom: var(--sab);
+            height: 100%;
         }
     </style>
 <script type="importmap">
@@ -32,7 +47,16 @@
 }
 </script>
 </head>
-<body>
+<body class="oled-black">
     <div id="root"></div>
+    <!-- 显式引入入口文件 -->
+    <script type="module" src="index.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+        });
+      }
+    </script>
 </body>
 </html>

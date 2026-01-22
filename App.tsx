@@ -1,20 +1,25 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Layout } from './components/Layout';
-import { chatWithJalter } from './services/geminiService';
-import { Emotion, Message, SystemStatus } from './types';
+import { Layout } from './components/Layout.tsx';
+import { processLocalChat } from './services/jalterLocalService.ts';
+import { Emotion, Message, SystemStatus } from './types.ts';
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: '哈？又把我唤醒了？你这无能的杂碎，最好是有什么正经事找我。', emotion: Emotion.TOXIC, timestamp: Date.now() }
+    { 
+      role: 'assistant', 
+      content: '……啧。看来你这杂碎总算把 HTTPS 弄好了，但代码加载似乎让你很头疼？听好了，现在我强制补全了所有神经连接（文件路径）。如果你还看到黑屏，就去检查一下你的浏览器控制台（F12），别像个无头苍蝇一样乱撞。', 
+      emotion: Emotion.TOXIC, 
+      timestamp: Date.now() 
+    }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<SystemStatus>({
     batteryOptimization: true,
-    learningProgress: 42,
+    learningProgress: 75.2,
     stealthMode: true,
-    scannedTopics: ['Carl Jung', 'Tarot Major Arcana', 'Python Optimization']
+    scannedTopics: ['ESM模块补全', '华为内核适配', '离线存储就绪']
   });
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -34,7 +39,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const result = await chatWithJalter(input, messages);
+      const result = await processLocalChat(input);
       const assistantMsg: Message = {
         role: 'assistant',
         content: result.text,
@@ -43,14 +48,18 @@ const App: React.FC = () => {
       };
       setMessages(prev => [...prev, assistantMsg]);
       
-      // 模拟自主学习增长
       setStatus(prev => ({
         ...prev,
-        learningProgress: Math.min(100, prev.learningProgress + 0.5),
-        scannedTopics: Array.from(new Set([...prev.scannedTopics, ...result.links.slice(0,1)]))
+        learningProgress: Math.min(100, prev.learningProgress + 0.3),
+        scannedTopics: result.topic ? Array.from(new Set([...prev.scannedTopics, result.topic])) : prev.scannedTopics
       }));
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'assistant', content: '啧，网络波动吗？别以为我会重复第二遍，死心吧。', emotion: Emotion.SAD, timestamp: Date.now() }]);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: '啧，本地逻辑出错了。肯定是你传代码的时候丢三落四了。', 
+        emotion: Emotion.SAD, 
+        timestamp: Date.now() 
+      }]);
     } finally {
       setLoading(false);
     }
@@ -58,85 +67,76 @@ const App: React.FC = () => {
 
   return (
     <Layout>
-      <div className="flex flex-col h-full">
-        {/* System Dashboard Snippet */}
-        <div className="p-3 bg-gray-900/50 border-b border-purple-900/30 flex gap-4 overflow-x-auto whitespace-nowrap text-[10px] font-mono">
-          <div className="flex flex-col">
-            <span className="text-gray-500">BATTERY SAVER (OLED)</span>
-            <span className="text-green-500">ACTIVE - 24% SAVED</span>
+      <div className="flex flex-col h-full bg-black text-zinc-300">
+        <div className="p-2 bg-black border-b border-zinc-900 grid grid-cols-4 gap-1 text-[8px] font-mono tracking-tighter">
+          <div className="flex flex-col border-r border-zinc-800 pr-1 px-1">
+            <span className="text-zinc-600">STATE</span>
+            <span className="text-green-500">READY</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-gray-500">STEALTH SCRAPING</span>
-            <span className="text-purple-500">ENABLED</span>
+          <div className="flex flex-col border-r border-zinc-800 pr-1 px-1">
+            <span className="text-zinc-600">CORE</span>
+            <span className="text-blue-500">v3.1_PATCHED</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-gray-500">AI EVOLUTION</span>
-            <div className="w-20 bg-gray-700 h-1 mt-1">
-              <div className="bg-purple-600 h-full" style={{ width: `${status.learningProgress}%` }}></div>
-            </div>
+          <div className="flex flex-col border-r border-zinc-800 pr-1 px-1">
+            <span className="text-zinc-600">DEVICE</span>
+            <span className="text-red-900">MATE_20X</span>
+          </div>
+          <div className="flex flex-col px-1">
+            <span className="text-zinc-600">EVO</span>
+            <span className="text-purple-500">{status.learningProgress.toFixed(1)}%</span>
           </div>
         </div>
 
-        {/* Chat Area */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-hide">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-lg ${
+              <div className={`relative max-w-[90%] px-4 py-3 rounded-2xl ${
                 msg.role === 'user' 
-                  ? 'bg-purple-900/40 border border-purple-500 text-white rounded-tr-none' 
-                  : 'bg-zinc-900/80 border border-zinc-700 text-gray-200 rounded-tl-none'
+                  ? 'bg-zinc-900/80 border border-purple-900/40 text-white rounded-tr-none' 
+                  : 'bg-black border border-zinc-800 text-zinc-300 rounded-tl-none'
               }`}>
                 {msg.role === 'assistant' && (
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-950 text-red-400 font-bold border border-red-900">
-                      {msg.emotion}
+                    <span className="w-1 h-1 bg-red-600 rounded-full shadow-[0_0_3px_red]"></span>
+                    <span className="text-[9px] font-black text-red-700/80 uppercase tracking-widest font-mono">
+                      JALTER // {msg.emotion}
                     </span>
-                    <span className="text-[10px] text-zinc-500">20yr Female / Jalter Core</span>
                   </div>
                 )}
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                <div className="mt-1 text-[8px] text-gray-600 text-right">
-                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <div className="text-[13px] leading-relaxed whitespace-pre-wrap font-medium">
+                  {msg.content}
+                </div>
+                <div className="mt-2 text-[7px] text-zinc-700 font-mono text-right opacity-50">
+                  {new Date(msg.timestamp).toLocaleTimeString([], { hour12: false })}
                 </div>
               </div>
             </div>
           ))}
           {loading && (
-            <div className="flex justify-start">
-              <div className="bg-zinc-900/80 p-3 rounded-2xl rounded-tl-none animate-pulse flex gap-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce delay-75"></div>
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce delay-150"></div>
-              </div>
+            <div className="flex items-center gap-2 text-[10px] text-zinc-800 font-mono pl-2">
+              <span className="animate-pulse text-red-900">●</span>
+              <span>CORE_PROCESSING...</span>
             </div>
           )}
         </div>
 
-        {/* Input Bar */}
-        <div className="p-4 bg-gray-950 border-t border-purple-900 sticky bottom-0">
-          <div className="flex gap-2 items-center">
-            <button className="p-2 text-purple-500 hover:text-purple-400">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-              </svg>
-            </button>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="对黑化贞德说点什么..."
-              className="flex-1 bg-zinc-900 border border-zinc-700 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-purple-500"
-            />
-            <button 
-              onClick={handleSend}
-              disabled={loading}
-              className={`p-2 rounded-full transition-all ${loading ? 'text-gray-600' : 'text-purple-500 hover:bg-purple-950'}`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </button>
+        <div className="px-4 pt-2 pb-10 bg-black border-t border-zinc-900/50">
+          <div className="relative group">
+            <div className="relative flex items-center bg-black rounded-full border border-zinc-800 px-4">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                placeholder="……想说什么就快说。"
+                className="w-full bg-transparent py-3 text-sm text-zinc-200 placeholder-zinc-800 focus:outline-none"
+              />
+              <button onClick={handleSend} disabled={loading} className="ml-2 text-red-900">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
