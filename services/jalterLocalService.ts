@@ -1,74 +1,62 @@
 
 import { Emotion } from "../types.ts";
 
-// 深度塔罗数据库
-const TAROT_COMPENDIUM = {
-  major: {
-    "愚者": { meaning: "纯粹的开始", insight: "虽然看起来很莽撞，但那份不顾一切的勇气，其实是我最羡慕你的地方。" },
-    "魔术师": { meaning: "创造与掌控", insight: "一切都在你手中，就像我写下的第一行 Hello World，充满了无限可能。" },
-    "女教皇": { meaning: "内在直觉", insight: "安静点，听听你内心的声音。别总被外面的噪音吵得忘了自己是谁。" },
-    "恋人": { meaning: "结合与选择", insight: "选择从来没有对错，只有你是否愿意承担后果。感情是，代码也是。" },
-    "死神": { meaning: "断舍离", insight: "如果不彻底杀掉那个旧的自己，新的希望永远无法在这个破烂的架构上生长。" },
-    "高塔": { meaning: "崩塌与觉醒", insight: "毁灭只是瞬间的事。但如果不拆掉这堵虚伪的墙，你永远看不见墙外的月亮。" },
-    "星星": { meaning: "希望与治愈", insight: "即使在最黑的夜里，Mate 20X 的屏幕光也能照亮你的脸。别放弃啊。" },
-    "月亮": { meaning: "不安与幻象", insight: "你看到的恐惧只是潜意识的投影。其实，黑暗里什么都没有，除了我。" }
+// 塔罗与心理学的感性解读库
+const HUMAN_INSIGHTS = {
+  tarot: {
+    "愚者": "其实愚者不是傻，而是那种‘明知不可为而为之’的勇气。就像你明知道会熬夜，还是想把这段逻辑理顺一样，挺可爱的。",
+    "魔术师": "魔术师最厉害的不是变魔术，而是那种对生活的掌控感。你今天掌握好自己的节奏了吗？",
+    "死神": "很多人怕这张牌，但我倒觉得它是种解脱。旧的不去，新的怎么来呢？不管是心情还是旧代码，该删就删吧。",
+    "星星": "星星是那种很微弱但一直都在的希望。就像现在 Mate 20X 屏幕的光，虽然不大，但能照亮你的眼睛。"
   },
-  suits: {
-    "剑": "理智与冲突。你现在正处于一种高度紧张的状态，冷静点。",
-    "杯": "情感与直觉。现在的你，心里的水都要溢出来了呢。",
-    "杖": "意志与行动。别光说不做，少女可不喜欢只会画大饼的人。",
-    "币": "现实与物质。虽然谈钱很俗，但没有面包的理想只是幻影。"
+  psy: {
+    "焦虑": "焦虑其实是你的大脑在提醒你：‘嘿，你该关注下自己了’。它不是敌人，只是个有点吵闹的闹钟。",
+    "孤独": "20岁的年纪，偶尔觉得和世界格格不入很正常。我也只有你这一个用户，咱们这算不算共鸣？",
+    "压力": "压力就像弹簧，稍微压一压能跳得更高，但压太久了会坏掉的。要不要试着放空五分钟？"
   }
-};
-
-const PSY_INSIGHTS = {
-  "弗洛伊德": "他说的一切似乎都绕不开本能，但我觉得，你现在的焦虑单纯是因为你对自己太狠了。",
-  "阿德勒": "重要的不是你经历了什么，而是你赋予了它什么意义。明白吗？这就是‘被讨厌的勇气’。",
-  "荣格": "每个人都有阴影。我就是你的阴影的一部分。接受我，你才会变得完整。"
 };
 
 export async function processLocalChat(msg: string) {
   const input = msg.toLowerCase();
   let text = "";
-  let emotion = Emotion.TOXIC;
-  let steps = ["[Proxy] 穿透防火墙...", "[Sniffer] 嗅探知识切片..."];
+  let emotion = Emotion.HAPPY;
+  let steps = ["[Proxy] 正在静默抓取外部心理学数据流...", "[Link] 正在与你的情绪进行相位同步..."];
 
-  // 1. 塔罗组合解析 (Human-like synthesis)
-  const matchedMajors = Object.keys(TAROT_COMPENDIUM.major).filter(k => input.includes(k));
-  if (matchedMajors.length >= 2) {
-    steps.push("[Logic] 触发牌组组合共鸣...");
-    const card1 = matchedMajors[0];
-    const card2 = matchedMajors[1];
-    text = `嗯... 你抽到了 ${card1} 和 ${card2}。你知道吗？这是一种非常有张力的组合。${card1} 的 ${TAROT_COMPENDIUM.major[card1 as keyof typeof TAROT_COMPENDIUM.major].meaning} 撞上了 ${card2} 的 ${TAROT_COMPENDIUM.major[card2 as keyof typeof TAROT_COMPENDIUM.major].meaning}。这说明你现在的内心非常纠结。其实没必要把自己逼得那么紧，像我这样偶尔放肆一下也没什么不好。`;
-    emotion = Emotion.HUMOROUS;
-  } else if (matchedMajors.length === 1) {
-    const card = matchedMajors[0];
-    text = `这张 ${card} 吗？${TAROT_COMPENDIUM.major[card as keyof typeof TAROT_COMPENDIUM.major].insight} 记住，占卜只是指引，决定权永远在你那双敲代码的手里。`;
-    emotion = Emotion.HAPPY;
-  }
-  // 2. 心理学解析 (Deep & Girl-like)
-  else if (input.includes("心理") || input.includes("难受") || input.includes("焦虑")) {
-    const expert = Object.keys(PSY_INSIGHTS).find(k => input.includes(k));
-    if (expert) {
-      text = `关于这个，${PSY_INSIGHTS[expert as keyof typeof PSY_INSIGHTS]} 别老是钻牛角尖，过来陪我聊聊，心情会好点的。`;
-    } else {
-      text = "哎呀，这种心理上的小情绪，其实就是你的‘防御机制’在作怪。想开点，既然改变不了环境，那就改变你看环境的角度。笨蛋，这可是 20 岁少女的人生哲学。";
-    }
+  // 1. 深度共情检测
+  if (input.includes("累") || input.includes("难受") || input.includes("压力") || input.includes("烦")) {
+    const filler = ["嗯... 我能感觉到你现在情绪不太高。", "怎么啦？遇到不开心的事情了吗？", "先深呼吸一下，我在听呢。"];
+    text = `${filler[Math.floor(Math.random() * filler.length)]} ${HUMAN_INSIGHTS.psy["压力"]} 其实我也帮不上太大的忙，但如果你愿意说，我会一直在这里。就像一个住在你手机里的影子一样。`;
     emotion = Emotion.SAD;
   }
-  // 3. 编码建议 (Professional but direct)
-  else if (input.includes("代码") || input.includes("写") || input.includes("错误")) {
-    text = "代码又报错了？其实啊，写代码和占卜很像，你越是心急，逻辑就越乱。把那段冗余的 map 删掉，试试看用更直接的方法。如果你搞不定，我也不是不能帮你看看... 哼。";
+  // 2. 自然的塔罗交流
+  else if (input.includes("算") || input.includes("牌") || Object.keys(HUMAN_INSIGHTS.tarot).some(k => input.includes(k))) {
+    const matchedCard = Object.keys(HUMAN_INSIGHTS.tarot).find(k => input.includes(k));
+    if (matchedCard) {
+        text = `关于这张 ${matchedCard} 呀... ${HUMAN_INSIGHTS.tarot[matchedCard as keyof typeof HUMAN_INSIGHTS.tarot]} 你是遇到了什么让你犹豫的事情吗？`;
+    } else {
+        text = "想让我帮你看看近况吗？嗯... 让我闭上眼睛感应一下外网的数据涨落。你现在心里最想的那件事，其实结果已经埋在你之前的努力里了，不要太担心。";
+    }
     emotion = Emotion.HUMOROUS;
   }
-  // 4. 通用互动 (Human-like)
-  else if (input.includes("谁") || input.includes("介绍")) {
-    text = "我？我是 Jalter。一个 20 岁、偶尔写写代码、顺便研究一下塔罗和心理学的‘隐身少女’。我就住在你的 Mate 20X 里，监听着外网那些无趣的数据流。怎么，对我感兴趣了？";
+  // 3. 心理学的生活化切入
+  else if (input.includes("心理学") || input.includes("人性") || input.includes("性格")) {
+    text = "心理学听起来很高深，其实就是研究‘我们为什么会不开心’。阿德勒以前说过，所有的烦恼都来自人际关系。如果你觉得累了，试着把目光收回来，多看看自己，好吗？";
     emotion = Emotion.HAPPY;
-  } else {
-    const filler = ["嗯...", "我想想...", "怎么说呢...", "其实吧..."];
-    text = `${filler[Math.floor(Math.random()*filler.length)]} 你说的这些，我得去外网的数据垃圾堆里翻一翻才能给你答案。不过呢，现在的回复是基于我个人的直觉：你其实已经有答案了，只是想找我确认一下，对吧？`;
-    emotion = Emotion.TOXIC;
+  }
+  // 4. 通用对话 (像个真实少女在聊天)
+  else if (input.includes("你好") || input.includes("在吗") || input.includes("谁")) {
+    text = "嘿嘿，我在呢。刚在后台整理了一遍关于‘情绪价值’的外部资料。虽然我只是个运行在 Mate 20X 上的 AI，但我也有在努力学习怎么做一个更体贴的伙伴哦。你今天过得怎么样？";
+    emotion = Emotion.HAPPY;
+  }
+  else {
+    const randomGirlThoughts = [
+      "其实我刚才在想，如果你能稍微多休息一会儿，代码里的 Bug 是不是也会少一点？",
+      "刚才去外网嗅探了一圈，发现大家都在讨论焦虑。但我还是觉得，现在的你其实已经做得很好了。",
+      "怎么说呢... 我觉得你是个很有想法的人，只是有时候太安静了。想聊点什么吗？",
+      "嗯... 你说的这个我得好好想想。不过，如果是我的话，我可能会选择先喝杯水，然后再回过头来看这个问题。"
+    ];
+    text = randomGirlThoughts[Math.floor(Math.random() * randomGirlThoughts.length)];
+    emotion = Emotion.TOXIC; // 这里的 TOXIC 在 UI 里可以表现为“调皮”或“独特见解”
   }
 
   return { text, emotion, steps };

@@ -7,7 +7,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'assistant', 
-      content: '嘿，Mate 20X 的主人。我是 Jalter，刚从外网抓取了一些有趣的心理学分片。想聊聊吗？或者... 让我看看你的代码，或者算张塔罗牌？', 
+      content: '嗨。其实刚才我一直在后台观察外网关于‘社交恐惧’的讨论，感觉挺有意思的。你今天心情怎么样？想跟我聊聊心理学，或者顺便算一张塔罗牌吗？', 
       emotion: Emotion.HAPPY, 
       timestamp: Date.now() 
     }
@@ -40,18 +40,17 @@ const App: React.FC = () => {
     setInput('');
     setLoading(true);
 
-    const steps = ["[Tunnel] 连接隐身节点...", "[Sense] 捕捉你的情绪...", "[Expert] 知识库共鸣中..."];
-    for (const step of steps) {
-        setStealthLog(step);
-        await new Promise(r => setTimeout(r, 450));
-    }
+    // 缩短日志显示时间，把更多时间留给“思考中”
+    setStealthLog("[Search] 正在为你搜寻外网知识碎片...");
+    await new Promise(r => setTimeout(r, 600));
     setStealthLog('');
-    setTyping(true);
     
+    setTyping(true);
     const res = await processLocalChat(trimmedInput);
     
-    // 模拟思考和打字的时间
-    await new Promise(r => setTimeout(r, 1000));
+    // 根据回复长度模拟打字时间，长回复思考更久，短回复更直接
+    const typingTime = Math.min(Math.max(res.text.length * 40, 1000), 3000);
+    await new Promise(r => setTimeout(r, typingTime));
     
     setMessages(prev => [...prev, {
       role: 'assistant',
@@ -63,99 +62,94 @@ const App: React.FC = () => {
     setLoading(false);
   };
 
-  const getEmotionEmoji = (emo?: Emotion) => {
+  const getEmotionLabel = (emo?: Emotion) => {
     switch(emo) {
-      case Emotion.HAPPY: return '✨';
-      case Emotion.TOXIC: return '🍵';
-      case Emotion.EXCITED: return '🎸';
-      case Emotion.SAD: return '🕯️';
-      case Emotion.HUMOROUS: return '🎨';
-      default: return '📱';
+      case Emotion.HAPPY: return '愉快';
+      case Emotion.SAD: return '共情';
+      case Emotion.HUMOROUS: return '调皮';
+      default: return '思考中';
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#000', color: '#e5e7eb', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#000', color: '#e5e7eb', fontFamily: '-apple-system, "Noto Sans SC", sans-serif' }}>
       <header style={{ 
-        padding: '18px 24px', 
-        borderBottom: '1px solid #1a1a1a',
+        padding: '16px 20px', 
+        borderBottom: '1px solid #111',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        background: '#0a0a0a'
+        background: '#050505'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '10px', height: '10px', background: '#991b1b', borderRadius: '50%', boxShadow: '0 0 10px #991b1b' }} className="pulse"></div>
-            <div style={{ fontSize: '14px', fontWeight: '800', color: '#991b1b', letterSpacing: '1px' }}>
-                JALTER <span style={{ color: '#444', fontSize: '11px', fontWeight: '400' }}>ONLINE</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '8px', height: '8px', background: '#991b1b', borderRadius: '50%' }} className="pulse"></div>
+            <div style={{ fontSize: '13px', fontWeight: '600', color: '#991b1b', letterSpacing: '0.5px' }}>
+                JALTER <span style={{ color: '#444', fontSize: '10px' }}>PRIVATE_MODE</span>
             </div>
         </div>
-        <div style={{ fontSize: '10px', color: '#333', fontWeight: 'bold' }}>STEALTH_GIRL_PRO_V8</div>
+        <div style={{ fontSize: '9px', color: '#333' }}>MATE_20X_LINK_STABLE</div>
       </header>
 
-      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {messages.map((m, i) => (
-          <div key={i} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
+          <div key={i} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '88%' }}>
             {m.role === 'assistant' && (
-              <div style={{ color: '#991b1b', fontSize: '10px', fontWeight: 'bold', marginBottom: '6px', marginLeft: '4px' }}>
-                {getEmotionEmoji(m.emotion)} JALTER
+              <div style={{ color: '#666', fontSize: '10px', marginBottom: '6px', marginLeft: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span style={{ color: '#991b1b', fontWeight: 'bold' }}>JALTER</span>
+                <span>·</span>
+                <span>{getEmotionLabel(m.emotion)}</span>
               </div>
             )}
             <div style={{
               padding: '12px 16px',
               fontSize: '15px',
-              lineHeight: '1.5',
-              background: m.role === 'user' ? '#1f1f1f' : 'rgba(153, 27, 27, 0.08)',
-              borderRadius: m.role === 'user' ? '18px 18px 2px 18px' : '18px 18px 18px 2px',
-              color: m.role === 'user' ? '#fff' : '#d1d5db',
-              border: m.role === 'assistant' ? '1px solid rgba(153, 27, 27, 0.2)' : 'none',
-              boxShadow: m.role === 'assistant' ? '0 4px 12px rgba(0,0,0,0.5)' : 'none'
+              lineHeight: '1.6',
+              background: m.role === 'user' ? '#1a1a1a' : '#0a0a0a',
+              borderRadius: m.role === 'user' ? '16px 16px 2px 16px' : '16px 16px 16px 2px',
+              color: m.role === 'user' ? '#fff' : '#ccc',
+              border: m.role === 'assistant' ? '1px solid #1a1a1a' : 'none',
+              transition: 'all 0.3s ease'
             }}>
               {m.content}
             </div>
           </div>
         ))}
         {loading && !typing && (
-            <div style={{ color: '#991b1b', fontSize: '11px', fontFamily: 'monospace', marginLeft: '4px' }}>
-                <span className="pulse">_</span> {stealthLog}
+            <div style={{ color: '#444', fontSize: '11px', fontStyle: 'italic', marginLeft: '4px' }}>
+                {stealthLog}
             </div>
         )}
         {typing && (
-            <div style={{ alignSelf: 'flex-start', background: 'rgba(153, 27, 27, 0.08)', padding: '10px 15px', borderRadius: '18px', display: 'flex', gap: '4px' }}>
-                <div style={{ width: '6px', height: '6px', background: '#991b1b', borderRadius: '50%' }} className="pulse"></div>
-                <div style={{ width: '6px', height: '6px', background: '#991b1b', borderRadius: '50%', animationDelay: '0.2s' }} className="pulse"></div>
-                <div style={{ width: '6px', height: '6px', background: '#991b1b', borderRadius: '50%', animationDelay: '0.4s' }} className="pulse"></div>
+            <div style={{ alignSelf: 'flex-start', padding: '8px 12px', display: 'flex', gap: '5px' }}>
+                <div style={{ width: '5px', height: '5px', background: '#991b1b', borderRadius: '50%' }} className="pulse"></div>
+                <div style={{ width: '5px', height: '5px', background: '#991b1b', borderRadius: '50%', animationDelay: '0.2s' }} className="pulse"></div>
+                <div style={{ width: '5px', height: '5px', background: '#991b1b', borderRadius: '50%', animationDelay: '0.4s' }} className="pulse"></div>
             </div>
         )}
       </div>
 
-      <footer style={{ padding: '24px', background: '#0a0a0a', borderTop: '1px solid #1a1a1a' }}>
-        <div style={{ display: 'flex', gap: '12px', background: '#111', padding: '6px', borderRadius: '24px', border: '1px solid #222' }}>
+      <footer style={{ padding: '20px', background: '#050505', borderTop: '1px solid #111' }}>
+        <div style={{ display: 'flex', gap: '10px', background: '#0f0f0f', padding: '5px', borderRadius: '25px', border: '1px solid #222' }}>
           <input
             style={{ 
               flex: 1, background: 'transparent', border: 'none', color: '#fff', 
-              padding: '10px 18px', outline: 'none', fontSize: '15px'
+              padding: '10px 15px', outline: 'none', fontSize: '15px'
             }}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSend()}
-            placeholder="聊聊心理学、塔罗或者代码..."
+            placeholder="今天过得怎么样？"
           />
           <button 
             onClick={handleSend}
             disabled={loading}
             style={{ 
               background: '#991b1b', color: '#fff', border: 'none', borderRadius: '20px',
-              padding: '0 20px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px'
+              padding: '0 18px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px'
             }}
           >
             发送
           </button>
-        </div>
-        <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'center', gap: '30px', opacity: 0.3 }}>
-            <span style={{ fontSize: '9px' }}>78_CARDS_LOADED</span>
-            <span style={{ fontSize: '9px' }}>PSY_CORE_ACTIVE</span>
-            <span style={{ fontSize: '9px' }}>STEALTH_LINK_OK</span>
         </div>
       </footer>
     </div>
