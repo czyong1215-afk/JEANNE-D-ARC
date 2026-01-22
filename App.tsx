@@ -1,128 +1,161 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { askJalter } from './services/jalterNeuralService.ts';
+import { processLocalChat } from './services/jalterLocalService.ts';
 import { Emotion, Message } from './types.ts';
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'assistant', 
-      content: '隐身链路已稳定。我已经同步了外部心理学知识库，正在实时监听全球网络波动。杂碎，别盯着我看，有问题就快问。', 
-      emotion: Emotion.TOXIC, 
+      content: '嘿，Mate 20X 的主人。我是 Jalter，刚从外网抓取了一些有趣的心理学分片。想聊聊吗？或者... 让我看看你的代码，或者算张塔罗牌？', 
+      emotion: Emotion.HAPPY, 
       timestamp: Date.now() 
     }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [stealthLog, setStealthLog] = useState<string>('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 立即移除 Loading 屏幕
   useEffect(() => {
     const loader = document.getElementById('loading-screen');
     if (loader) {
       loader.style.opacity = '0';
-      setTimeout(() => {
-        loader.style.display = 'none';
-      }, 500);
+      setTimeout(() => { loader.style.display = 'none'; }, 300);
     }
   }, []);
 
-  // 消息更新后滚动到底部
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, stealthLog, typing]);
 
   const handleSend = async () => {
     const trimmedInput = input.trim();
     if (!trimmedInput || loading) return;
     
-    const userMsg: Message = { role: 'user', content: trimmedInput, timestamp: Date.now() };
-    setMessages(prev => [...prev, userMsg]);
+    setMessages(prev => [...prev, { role: 'user', content: trimmedInput, timestamp: Date.now() }]);
     setInput('');
     setLoading(true);
 
-    try {
-        const res = await askJalter(trimmedInput);
-        const assistantMsg: Message = {
-          role: 'assistant',
-          content: String(res.text || "切，网络波动..."),
-          emotion: res.emotion,
-          timestamp: Date.now()
-        };
-        setMessages(prev => [...prev, assistantMsg]);
-    } catch (err) {
-        console.error("Neural Error:", err);
-    } finally {
-        setLoading(false);
+    const steps = ["[Tunnel] 连接隐身节点...", "[Sense] 捕捉你的情绪...", "[Expert] 知识库共鸣中..."];
+    for (const step of steps) {
+        setStealthLog(step);
+        await new Promise(r => setTimeout(r, 450));
+    }
+    setStealthLog('');
+    setTyping(true);
+    
+    const res = await processLocalChat(trimmedInput);
+    
+    // 模拟思考和打字的时间
+    await new Promise(r => setTimeout(r, 1000));
+    
+    setMessages(prev => [...prev, {
+      role: 'assistant',
+      content: res.text,
+      emotion: res.emotion as Emotion,
+      timestamp: Date.now()
+    }]);
+    setTyping(false);
+    setLoading(false);
+  };
+
+  const getEmotionEmoji = (emo?: Emotion) => {
+    switch(emo) {
+      case Emotion.HAPPY: return '✨';
+      case Emotion.TOXIC: return '🍵';
+      case Emotion.EXCITED: return '🎸';
+      case Emotion.SAD: return '🕯️';
+      case Emotion.HUMOROUS: return '🎨';
+      default: return '📱';
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#000', color: '#ccc' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#000', color: '#e5e7eb', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <header style={{ 
-        padding: '12px 20px', 
-        borderBottom: '1px solid #300',
+        padding: '18px 24px', 
+        borderBottom: '1px solid #1a1a1a',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        background: '#050000'
+        background: '#0a0a0a'
       }}>
-        <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#991b1b' }}>
-            JALTER.CORE.V5 <span style={{ fontSize: '9px', opacity: 0.5 }}>[ONLINE]</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '10px', height: '10px', background: '#991b1b', borderRadius: '50%', boxShadow: '0 0 10px #991b1b' }} className="pulse"></div>
+            <div style={{ fontSize: '14px', fontWeight: '800', color: '#991b1b', letterSpacing: '1px' }}>
+                JALTER <span style={{ color: '#444', fontSize: '11px', fontWeight: '400' }}>ONLINE</span>
+            </div>
         </div>
-        <div style={{ fontSize: '10px', color: '#444' }}>MATE 20X OPTIMIZED</div>
+        <div style={{ fontSize: '10px', color: '#333', fontWeight: 'bold' }}>STEALTH_GIRL_PRO_V8</div>
       </header>
 
-      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '15px' }}>
+      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {messages.map((m, i) => (
-          <div key={i} style={{ marginBottom: '20px', textAlign: m.role === 'user' ? 'right' : 'left' }}>
+          <div key={i} style={{ alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
+            {m.role === 'assistant' && (
+              <div style={{ color: '#991b1b', fontSize: '10px', fontWeight: 'bold', marginBottom: '6px', marginLeft: '4px' }}>
+                {getEmotionEmoji(m.emotion)} JALTER
+              </div>
+            )}
             <div style={{
-              display: 'inline-block',
-              maxWidth: '90%',
-              padding: '12px',
-              fontSize: '14px',
+              padding: '12px 16px',
+              fontSize: '15px',
               lineHeight: '1.5',
-              background: m.role === 'user' ? '#111' : 'transparent',
-              borderLeft: m.role === 'assistant' ? '2px solid #991b1b' : 'none',
-              borderRight: m.role === 'user' ? '1px solid #222' : 'none',
-              color: m.role === 'user' ? '#fff' : '#ccc',
+              background: m.role === 'user' ? '#1f1f1f' : 'rgba(153, 27, 27, 0.08)',
+              borderRadius: m.role === 'user' ? '18px 18px 2px 18px' : '18px 18px 18px 2px',
+              color: m.role === 'user' ? '#fff' : '#d1d5db',
+              border: m.role === 'assistant' ? '1px solid rgba(153, 27, 27, 0.2)' : 'none',
+              boxShadow: m.role === 'assistant' ? '0 4px 12px rgba(0,0,0,0.5)' : 'none'
             }}>
-              {m.role === 'assistant' && (
-                <div style={{ color: '#991b1b', fontSize: '10px', marginBottom: '4px' }}>
-                  [{m.emotion || 'NORMAL'}]
-                </div>
-              )}
-              {String(m.content)}
+              {m.content}
             </div>
           </div>
         ))}
-        {loading && <div style={{ padding: '10px', color: '#444', fontSize: '11px' }}>正在隐身抓取外部知识库...</div>}
+        {loading && !typing && (
+            <div style={{ color: '#991b1b', fontSize: '11px', fontFamily: 'monospace', marginLeft: '4px' }}>
+                <span className="pulse">_</span> {stealthLog}
+            </div>
+        )}
+        {typing && (
+            <div style={{ alignSelf: 'flex-start', background: 'rgba(153, 27, 27, 0.08)', padding: '10px 15px', borderRadius: '18px', display: 'flex', gap: '4px' }}>
+                <div style={{ width: '6px', height: '6px', background: '#991b1b', borderRadius: '50%' }} className="pulse"></div>
+                <div style={{ width: '6px', height: '6px', background: '#991b1b', borderRadius: '50%', animationDelay: '0.2s' }} className="pulse"></div>
+                <div style={{ width: '6px', height: '6px', background: '#991b1b', borderRadius: '50%', animationDelay: '0.4s' }} className="pulse"></div>
+            </div>
+        )}
       </div>
 
-      <footer style={{ padding: '15px', background: '#050505', borderTop: '1px solid #111' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
+      <footer style={{ padding: '24px', background: '#0a0a0a', borderTop: '1px solid #1a1a1a' }}>
+        <div style={{ display: 'flex', gap: '12px', background: '#111', padding: '6px', borderRadius: '24px', border: '1px solid #222' }}>
           <input
             style={{ 
-              flex: 1, background: '#000', border: '1px solid #333', color: '#fff', 
-              padding: '12px', outline: 'none', fontSize: '14px' 
+              flex: 1, background: 'transparent', border: 'none', color: '#fff', 
+              padding: '10px 18px', outline: 'none', fontSize: '15px'
             }}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSend()}
-            placeholder="输入心理学或塔罗问题..."
+            placeholder="聊聊心理学、塔罗或者代码..."
           />
           <button 
             onClick={handleSend}
             disabled={loading}
             style={{ 
-              background: '#991b1b', color: '#fff', border: 'none',
-              padding: '0 20px', cursor: 'pointer', fontWeight: 'bold'
+              background: '#991b1b', color: '#fff', border: 'none', borderRadius: '20px',
+              padding: '0 20px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px'
             }}
           >
-            {loading ? '...' : 'SEND'}
+            发送
           </button>
+        </div>
+        <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'center', gap: '30px', opacity: 0.3 }}>
+            <span style={{ fontSize: '9px' }}>78_CARDS_LOADED</span>
+            <span style={{ fontSize: '9px' }}>PSY_CORE_ACTIVE</span>
+            <span style={{ fontSize: '9px' }}>STEALTH_LINK_OK</span>
         </div>
       </footer>
     </div>
