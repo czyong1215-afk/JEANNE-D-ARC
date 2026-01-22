@@ -1,11 +1,10 @@
 
-const CACHE_NAME = 'jalter-ai-v3'; // 提升版本号以强制更新
+const CACHE_NAME = 'jalter-ai-v4';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  'https://cdn.tailwindcss.com',
-  'https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;700&display=swap'
+  'https://cdn.tailwindcss.com'
 ];
 
 self.addEventListener('install', (event) => {
@@ -24,8 +23,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // 简单的网络优先策略，防止黑屏死锁
+  // 采用“网络优先，超时回退”策略
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    Promise.race([
+      fetch(event.request),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+    ]).catch(() => caches.match(event.request))
   );
 });
