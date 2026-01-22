@@ -8,8 +8,9 @@ const rootElement = document.getElementById('root');
 if (rootElement) {
     try {
         const root = createRoot(rootElement);
-        root.render(React.createElement(App));
-        console.log("Jalter: 18.3.1 Linked.");
+        // React 19 支持直接渲染组件
+        root.render(<App />);
+        console.log("Jalter: 19.2.3 Core Linked. Boosted Mode.");
     } catch (e) {
         console.error("Critical Start Error:", e);
     }
