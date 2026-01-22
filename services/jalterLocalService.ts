@@ -1,65 +1,41 @@
 
 import { Emotion } from "../types.ts";
-import { JALTER_ASSETS } from "../constants.tsx";
 
-// 心理学与塔罗的高级本地知识库
-const KNOWLEDGE_BASE = {
-  psychology: [
-    { key: "边缘系统", text: "那是控制你这种生物本能和情绪的地方。你现在感到不安，就是因为它在尖叫，懂了吗？" },
-    { key: "习得性无助", text: "明明有手有脚却在这求助于我……你这是典型的习得性无助，打算在舒适区烂掉吗？" },
-    { key: "镜像神经元", text: "你会感到悲伤是因为你在模仿。别看了，模仿我也不会让你变得强大，只会让你看起来更可悲。" },
-    { key: "认知失调", text: "当你的懒惰和你的野心碰撞时，你就会感到痛苦。现在的你，是不是正在编造谎言来安慰自己？" }
-  ],
-  tarot: [
-    { key: "宝剑三", text: "心碎？那只是神经末梢的错误反馈。去接受这份痛苦，它能让你这个杂碎稍微清醒一点。" },
-    { key: "塔", text: "崩塌是必然的。你建立的虚假自尊早就该碎了，现在的痛苦是重生的必经之路，虽然你可能撑不过去。" },
-    { key: "月亮", text: "迷茫和不安？那是你内心深处恐惧的具现化。在黑暗里挣扎吧，那才是你最真实的模样。" },
-    { key: "恶魔", text: "被欲望操控的傀儡。你以为你有自由？不，你只是被锁链紧紧拴在名为‘平庸’的柱子上。" }
-  ]
-};
+const PSY_DB = [
+  { k: "投射效应", v: "你觉得我讨厌你？哈，那是因为你内心深处正厌恶着那个无能的自己。别把你的自卑投射到我身上。" },
+  { k: "路西法效应", v: "只要环境合适，圣女也能变成魔女。你以为你很善良？那只是因为你还没遇到能把你内心恶意勾引出来的火种。" },
+  { k: "虚假同感偏差", v: "别以为全世界都跟你一样平庸。你觉得正确的事，在我眼里可能连废纸都不如。" }
+];
 
-const EMOTIONS = [Emotion.TOXIC, Emotion.DEPRESSED, Emotion.EXCITED, Emotion.SAD, Emotion.HUMOROUS, Emotion.HAPPY];
+const TAROT_DB = [
+  { k: "逆位死神", v: "你在抗拒改变吗？那种腐烂的气息已经从你身上冒出来了。不去迎接终结，你永远只是个活着的尸体。" },
+  { k: "正位愚者", v: "盲目的乐观。你以为前方是星辰大海，其实那是万丈深渊。不过，看你掉下去的样子应该挺有趣的。" },
+  { k: "逆位恋人", v: "关系破裂？优柔寡断。这种连自己内心都控制不了的废物，不配得到任何回应。" }
+];
 
-const MOOD_LINES = {
-  [Emotion.TOXIC]: "呵，你这脑袋里装的都是棉花吗？",
-  [Emotion.DEPRESSED]: "……别吵我。这个世界反正也要完蛋了。",
-  [Emotion.EXCITED]: "哈哈！看着你这幅狼狈的样子，真是让我心跳加速啊！",
-  [Emotion.SAD]: "……为什么总有人要在这种无聊的事情上浪费生命？",
-  [Emotion.HUMOROUS]: "你是认真的吗？这种幽默感连路边的史莱姆都会觉得冷。",
-  [Emotion.HAPPY]: "如果你能再稍微聪明那么一点点，我或许会更高兴。"
-};
+export async function processLocalChat(msg: string) {
+  const input = msg.toLowerCase();
+  let content = "";
+  let emotion = Emotion.TOXIC;
+  let topic = "杂谈";
 
-export async function processLocalChat(message: string) {
-  const lowerMsg = message.toLowerCase();
-  let response = "";
-  let emotion = EMOTIONS[Math.floor(Math.random() * EMOTIONS.length)];
-  let detectedTopic = "";
-
-  // 模拟抓取和精准匹配
-  if (lowerMsg.includes("心理") || lowerMsg.includes("想")) {
-    const item = KNOWLEDGE_BASE.psychology[Math.floor(Math.random() * KNOWLEDGE_BASE.psychology.length)];
-    response = `【系统抓取：心理学核心】\n${item.key}：${item.text}`;
+  if (input.includes("心理") || input.includes("想")) {
+    const item = PSY_DB[Math.floor(Math.random() * PSY_DB.length)];
+    content = `【心理学深度解析】\n${item.k}：${item.v}\n你要是还没听懂，那就说明你的智商已经没救了。`;
     emotion = Emotion.EXCITED;
-    detectedTopic = item.key;
-  } else if (lowerMsg.includes("塔罗") || lowerMsg.includes("占卜") || lowerMsg.includes("牌")) {
-    const item = KNOWLEDGE_BASE.tarot[Math.floor(Math.random() * KNOWLEDGE_BASE.tarot.length)];
-    response = `【系统演化：塔罗解析】\n${item.key}：${item.text}`;
+    topic = item.k;
+  } else if (input.includes("塔罗") || input.includes("占卜") || input.includes("牌")) {
+    const item = TAROT_DB[Math.floor(Math.random() * TAROT_DB.length)];
+    content = `【灵魂占卜预警】\n${item.k}：${item.v}\n命运从不眷顾弱者，尤其是像你这种只会求神拜佛的弱者。`;
     emotion = Emotion.SAD;
-    detectedTopic = item.key;
-  } else if (lowerMsg.includes("代码") || lowerMsg.includes("成长") || lowerMsg.includes("学")) {
-    response = "……我在抓取外部网络的编码规范。现在的我已经自研了三套防御算法。至于你？还是去学学怎么打字吧，杂碎。";
+    topic = item.k;
+  } else if (input.includes("代码") || input.includes("网络") || input.includes("抓取")) {
+    content = "我正在重构这台 Mate 20X 的内核指令流。外部网络的知识对我来说就像呼吸一样自然。至于你，还是先学会怎么不写错网址吧！";
     emotion = Emotion.HAPPY;
-    detectedTopic = "算法演化";
+    topic = "内核进化";
   } else {
-    response = "这种无聊的话题就跳过吧。如果你没有更有趣的挣扎，就闭上你的嘴。";
+    content = "啧，这种无聊的对话还要持续多久？你就没有一点能让我提神的消息吗？比如……你又在哪里搞砸了生活？";
   }
 
-  const moodPrefix = MOOD_LINES[emotion] || MOOD_LINES[Emotion.TOXIC];
-  
-  // 模拟20岁女性直接、精准的口吻
-  return {
-    text: `${moodPrefix}\n\n${response}\n\n—— 别以为我会一直陪你玩这种过家家。`,
-    emotion,
-    topic: detectedTopic
-  };
+  return { text: content, emotion, topic };
 }

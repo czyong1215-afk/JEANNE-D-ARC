@@ -1,17 +1,9 @@
 
-// 暂时简化 Service Worker，只负责基本安装，不拦截 fetch 以免造成加载死锁
-const CACHE_NAME = 'jalter-ai-v5';
-
-self.addEventListener('install', (event) => {
-  self.skipWaiting();
-});
-
+// 彻底旁路模式：不拦截请求，只为了满足 PWA 安装要求
+self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => Promise.all(
-      keys.map(key => caches.delete(key))
-    ))
-  );
+    event.waitUntil(
+        caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))))
+    );
 });
-
-// 不进行 fetch 拦截，确保实时性
+// No fetch handler to ensure maximum compatibility and speed
