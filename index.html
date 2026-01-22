@@ -4,74 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JALTER-CORE [OFFLINE_MODE]</title>
-    
+    <title>JALTER-CORE [STEALTH_MODE]</title>
+    <link rel="manifest" href="./manifest.json">
     <script async src="https://ga.jspm.io/npm:es-module-shims@1.10.1/dist/es-module-shims.js"></script>
-
     <script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@18.3.1",
     "react-dom": "https://esm.sh/react-dom@18.3.1",
     "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "@google/genai": "https://esm.sh/@google/genai",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
-
     <style>
-        :root {
-            --bg: #000000; /* 纯黑，为 Mate 20X 节能 */
-            --accent: #991b1b;
-            --text: #d1d5db;
-        }
-
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            font-family: system-ui, -apple-system, sans-serif; 
-            height: 100vh; 
-            overflow: hidden; 
-        }
-
-        #loading-screen { 
-            position: fixed; 
-            inset: 0; 
-            background: #000; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            z-index: 9999; 
-        }
-
-        .pulse { animation: pulse 2s infinite; }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        .scanline {
-            width: 100%;
-            height: 1px;
-            background: rgba(153, 27, 27, 0.2);
-            position: absolute;
-            top: 0;
-            animation: scan 4s linear infinite;
-        }
-        @keyframes scan {
-            from { top: 0; }
-            to { top: 100%; }
-        }
+        :root { --bg: #000; --accent: #991b1b; --text: #d1d5db; }
+        body { background: var(--bg); color: var(--text); margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; }
+        #loading-screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
+        .scanline { width: 100%; height: 1px; background: rgba(153, 27, 27, 0.3); position: absolute; animation: scan 3s linear infinite; pointer-events: none; }
+        @keyframes scan { from { top: 0; } to { top: 100%; } }
     </style>
 </head>
 <body>
     <div class="scanline"></div>
     <div id="loading-screen">
-        <div style="color: #991b1b; font-weight: bold; font-size: 1.2rem;" class="pulse">NEURAL LINK INITIALIZING...</div>
-        <div style="font-size: 10px; color: #333; margin-top: 10px;">[STEALTH_MODE_ACTIVE]</div>
+        <div style="color: #991b1b; font-weight: bold; letter-spacing: 4px;">NEURAL LINKING...</div>
+        <div style="font-size: 10px; color: #333; margin-top: 5px;">HUAWEI MATE 20X OPTIMIZED</div>
     </div>
     <div id="root" style="height:100%"></div>
     <script type="module" src="./index.tsx"></script>

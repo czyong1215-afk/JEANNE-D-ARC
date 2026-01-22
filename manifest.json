@@ -1,18 +1,23 @@
 
 {
-  "name": "Jalter AI Core",
+  "name": "Jalter Core",
   "short_name": "Jalter",
-  "description": "黑化贞德人格AI助手 - 心理与塔罗核心",
-  "start_url": ".",
+  "description": "黑化贞德人格AI助手 - 离线潜伏模式",
+  "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/1683/1683404.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1683/1683404.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }

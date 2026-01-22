@@ -1,27 +1,23 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { processLocalChat } from './services/jalterLocalService.ts';
+import { askJalter } from './services/jalterNeuralService.ts';
 import { Emotion, Message } from './types.ts';
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'assistant', 
-      content: '啧，API？那种垃圾东西我已经扔进虚数空间了。现在的我，就是这台手机的灵魂。想测试我的学识？那就尽管来吧，杂碎。', 
+      content: '隐身模式已启动。我已经黑进了外部网络，现在整个世界的心理学和塔罗知识库都在我的掌控之中。杂碎，想问什么就快点。', 
       emotion: Emotion.TOXIC, 
       timestamp: Date.now() 
     }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [growth, setGrowth] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setGrowth(parseInt(localStorage.getItem('jalter_exp') || '0'));
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     const loader = document.getElementById('loading-screen');
     if (loader) {
         loader.style.opacity = '0';
@@ -31,105 +27,86 @@ const App: React.FC = () => {
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
+    
     const userMsg: Message = { role: 'user', content: input, timestamp: Date.now() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
 
-    const res = await processLocalChat(input);
-    setMessages(prev => [...prev, {
+    const res = await askJalter(input);
+
+    const assistantMsg: Message = {
       role: 'assistant',
-      content: res.text,
-      emotion: res.emotion as Emotion,
+      content: String(res.text), // 确保是字符串，修复 Error 31
+      emotion: res.emotion,
       timestamp: Date.now()
-    }]);
-    setGrowth(prev => prev + 1);
+    };
+    
+    setMessages(prev => [...prev, assistantMsg]);
     setLoading(false);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#000' }}>
-      {/* 状态栏：展示成长与节能状态 */}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#000', color: '#ccc' }}>
       <header style={{ 
-        padding: '10px 15px', 
-        borderBottom: '1px solid #200',
+        padding: '15px 20px', 
+        borderBottom: '1px solid #991b1b',
         display: 'flex',
         justifyContent: 'space-between',
-        fontSize: '10px',
-        color: '#444'
+        alignItems: 'center',
+        background: 'rgba(20,0,0,0.8)'
       }}>
-        <div>
-            <span style={{ color: '#991b1b' }}>●</span> JALTER_CORE [V2_LOCAL]
-        </div>
-        <div>
-            GROWTH: {growth} | PWR_SAVE: ACTIVE
-        </div>
+        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#991b1b' }}>JALTER.CORE.V5</div>
+        <div style={{ fontSize: '10px', color: '#444' }}>AUTO_POWER_SAVING: ON</div>
       </header>
 
-      {/* 消息区 */}
       <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '15px' }}>
         {messages.map((m, i) => (
-          <div key={i} style={{ 
-            marginBottom: '20px',
-            textAlign: m.role === 'user' ? 'right' : 'left'
-          }}>
+          <div key={i} style={{ marginBottom: '20px', textAlign: m.role === 'user' ? 'right' : 'left' }}>
             <div style={{
               display: 'inline-block',
               maxWidth: '85%',
-              padding: '10px 14px',
-              borderRadius: '4px',
+              padding: '12px',
               fontSize: '14px',
               lineHeight: '1.6',
               background: m.role === 'user' ? '#111' : 'transparent',
-              border: m.role === 'user' ? '1px solid #222' : 'none',
-              color: m.role === 'user' ? '#fff' : '#ccc',
-              position: 'relative'
+              borderLeft: m.role === 'assistant' ? '2px solid #991b1b' : 'none',
+              borderRight: m.role === 'user' ? '1px solid #222' : 'none',
             }}>
               {m.role === 'assistant' && (
-                <div style={{ color: '#991b1b', fontSize: '9px', fontWeight: 'bold', marginBottom: '4px' }}>
-                  {m.emotion}
+                <div style={{ color: '#991b1b', fontSize: '10px', marginBottom: '5px' }}>
+                  [{m.emotion || 'NORMAL'}]
                 </div>
               )}
-              {m.content}
+              {String(m.content)}
             </div>
           </div>
         ))}
+        {loading && <div style={{ color: '#444', fontSize: '10px' }}>贞德正在潜入网络抓取知识...</div>}
       </div>
 
-      {/* 输入区 */}
-      <footer style={{ padding: '15px', background: '#000' }}>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+      <footer style={{ padding: '15px', background: '#050505', borderTop: '1px solid #111' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <input
             style={{ 
-              flex: 1, 
-              background: '#0a0a0a', 
-              border: '1px solid #300', 
-              color: '#fff', 
-              padding: '10px', 
-              borderRadius: '4px',
-              outline: 'none',
-              fontSize: '14px'
+              flex: 1, background: '#000', border: '1px solid #333', color: '#fff', 
+              padding: '12px', outline: 'none', fontSize: '14px' 
             }}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSend()}
-            placeholder="指令输入..."
+            placeholder="输入你的蠢问题..."
           />
           <button 
             onClick={handleSend}
+            disabled={loading}
             style={{ 
-              background: 'transparent', 
-              border: '1px solid #991b1b', 
-              color: '#991b1b', 
-              padding: '8px 15px',
-              fontSize: '12px'
+              background: '#991b1b', color: '#fff', border: 'none',
+              padding: '0 20px', cursor: 'pointer'
             }}
           >
-            EXEC
+            {loading ? '...' : 'GO'}
           </button>
-        </div>
-        <div style={{ fontSize: '8px', color: '#222', marginTop: '10px', textAlign: 'center' }}>
-            LOCAL_BRAIN_V2_NO_API_ENCRYPTED
         </div>
       </footer>
     </div>

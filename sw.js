@@ -1,9 +1,22 @@
 
-// 彻底旁路模式：不拦截请求，只为了满足 PWA 安装要求
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))))
-    );
+const CACHE_NAME = 'jalter-core-v2';
+const ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.json'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
 });
-// No fetch handler to ensure maximum compatibility and speed
+
+self.addEventListener('fetch', (event) => {
+  // 拦截请求以实现极速本地加载，真正降低电耗
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
+  );
+});
