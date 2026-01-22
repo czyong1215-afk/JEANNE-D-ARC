@@ -1,0 +1,8 @@
+{
+  "name": "Jalter AI - 黑化贞德心理与塔罗核心",
+  "description": "基于黑化贞德人格的AI助手，专注于心理学、塔罗占卜及系统优化。具有毒舌、多变情绪的20岁女性人格。",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
